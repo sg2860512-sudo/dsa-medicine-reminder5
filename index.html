@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sayan Medicine Reminder</title>
+<style>
+* { box-sizing: border-box; font-family: Arial, sans-serif; }
+body { background: #f0f4f8; margin: 0; padding: 15px; color: #333; }
+.dev-header-bar { max-width: 1000px; margin: 0 auto 15px auto; background: #0f172a; color: white; padding: 12px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.developer-badge { display: flex; align-items: center; gap: 12px; }
+.dev-avatar { width: 40px; height: 40px; border-radius: 50%; background: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 16px; border: 2px solid #38bdf8; }
+.dev-title { font-size: 11px; color: #94a3b8; text-transform: uppercase; }
+.dev-name { font-size: 16px; font-weight: bold; color: #38bdf8; }
+.live-clock { font-size: 18px; font-weight: bold; color: #38bdf8; background: #1e293b; padding: 6px 14px; border-radius: 6px; border: 1px solid #334155; }
+h1 { text-align: center; color: #1e3a8a; margin: 5px 0; font-size: 24px; }
+.subtitle { text-align: center; color: #555; font-size: 13px; margin-bottom: 20px; }
+.container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+.auth-card { max-width: 420px; margin: 20px auto; background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #cbd5e1; }
+.auth-card h2 { text-align: center; color: #1e3a8a; margin-top: 0; margin-bottom: 18px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+.form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+.btn-primary { width: 100%; background: #2563eb; color: white; border: none; padding: 11px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; }
+.btn-primary:hover { background: #1d4ed8; }
+.switch-text { text-align: center; margin-top: 15px; font-size: 13px; color: #64748b; }
+.switch-text span { color: #2563eb; cursor: pointer; font-weight: bold; text-decoration: underline; }
+.user-status-bar { display: flex; justify-content: space-between; align-items: center; background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 18px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.user-profile { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1e3a8a; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 14px; overflow: hidden; }
+.btn-logout { background: #dc2626; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+.breadcrumb { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-size: 15px; font-weight: bold; color: #2563eb; flex-wrap: wrap; }
+.breadcrumb span { cursor: pointer; text-decoration: underline; }
+.year-selector { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.year-selector select, .year-selector button { padding: 8px 14px; font-size: 15px; border-radius: 6px; border: 1px solid #cbd5e1; cursor: pointer; }
+.year-selector button { background: #2563eb; color: white; border: none; }
+.months-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.month-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+.month-title { font-weight: bold; text-align: center; color: #1e3a8a; margin-bottom: 10px; font-size: 16px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.day-name { font-size: 12px; font-weight: bold; color: #64748b; padding: 4px 0; }
+.date-cell { padding: 8px 2px; background: white; border-radius: 4px; cursor: pointer; font-size: 13px; border: 1px solid #e2e8f0; position: relative; user-select: none; }
+.date-cell:hover { background: #dbeafe; border-color: #2563eb; }
+.date-cell.has-med { background: #fee2e2; border-color: #ef4444; font-weight: bold; color: #b91c1c; }
+.hours-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 12px; }
+.hour-card { background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; user-select: none; }
+.hour-card:hover { border-color: #2563eb; background: #eff6ff; }
+.hour-card.booked { background: #dcfce7; border-color: #22c55e; }
+.hour-title { font-size: 18px; font-weight: bold; color: #0f172a; }
+.hour-sub { font-size: 11px; color: #15803d; margin-top: 4px; font-weight: bold; }
+.minutes-list { display: flex; flex-direction: column; gap: 10px; max-height: 450px; overflow-y: auto; padding-right: 5px; }
+.minute-row { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px 15px; border-radius: 8px; flex-wrap: wrap; gap: 8px; }
+.minute-info { font-weight: bold; color: #1e293b; font-size: 15px; }
+.minute-med-details { font-size: 13px; color: #15803d; margin-top: 2px; }
+.btn-add-med { background: #0f766e; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+.modal-content { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 380px; }
+.modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+.btn-save { background: #16a34a; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.btn-close { background: #64748b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+#alarmBanner { display: none; background: #fef2f2; border: 2px solid #ef4444; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+.btn-stop { background: #dc2626; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="dev-header-bar">
+    <div class="developer-badge">
+        <div class="dev-avatar">SG</div>
+        <div>
+            <div class="dev-title">Project Developer</div>
+            <div class="dev-name">Sayan Ghosh</div>
+        </div>
+    </div>
+    <div class="live-clock" id="liveClockDisplay">Loading Time...</div>
+</div>
+
+<h1>Smart Medicine Reminder</h1>
+<div class="subtitle">Custom User ID System + Full Year Calendar & Audio Alarm</div>
+
+<div class="container">
+    <!-- 1. LOGIN SCREEN -->
+    <div id="authLogin" class="auth-card">
+        <h2>Login to Your Account</h2>
+        <div class="form-group">
+            <label>Enter Your User ID:</label>
+            <input type="text" id="loginUserId" placeholder="e.g., ID-4829">
+        </div>
+        <button type="button" class="btn-primary" onclick="handleLogin()">Login</button>
+        <div class="switch-text">Don't have an account? <span onclick="showRegisterScreen()">Register Here</span></div>
+    </div>
+
+    <!-- 2. REGISTER SCREEN -->
+    <div id="authRegister" class="auth-card" style="display:none;">
+        <h2>Create New Account</h2>
+        <div class="form-group">
+            <label>Enter Your Full Name:</label>
+            <input type="text" id="regName" placeholder="e.g., Sayan Ghosh">
+        </div>
+        <div class="form-group">
+            <label>Enter Your Phone Number:</label>
+            <input type="text" id="regPhone" placeholder="e.g., 9876543210">
+        </div>
+        <button type="button" class="btn-primary" onclick="handleRegister()">Create Account & Get ID</button>
+        <div class="switch-text">Already have an account? <span onclick="showLoginScreen()">Login Here</span></div>
+    </div>
+
+    <!-- 3. MAIN DASHBOARD -->
+    <div id="mainDashboard" style="display:none;">
+        <div id="alarmBanner">
+            <h3 style="color:#dc2626; margin:0;">MEDICINE TIME ALERT!</h3>
+            <p id="alarmDetailsText" style="font-weight:bold; margin:6px 0; font-size:16px;"></p>
+            <p id="alarmInstText" style="font-size:14px; color:#555;"></p>
+            <button type="button" class="btn-stop" onclick="stopAlarmSound()">Stop Alarm</button>
+        </div>
+
+        <div class="user-status-bar">
+            <div class="user-profile">
+                <div class="user-avatar" id="navUserAvatar">SG</div>
+                <div>
+                    <div id="navUserName" style="font-weight:bold; font-size:15px; color:#1e3a8a;">User Name</div>
+                    <div id="navUserDetails" style="font-size:12px; color:#475569;">User ID: ---</div>
+                </div>
+            </div>
+            <button type="button" class="btn-logout" onclick="handleLogout()">Logout</button>
+        </div>
+
+        <div class="breadcrumb" id="breadcrumbNav">
+            <span onclick="goToYearView()">Calendar (<span id="lblCurrentYear">2026</span>)</span>
+        </div>
+
+        <div id="viewYear" style="display:block;">
+            <div class="year-selector">
+                <label><b>Select Year:</b></label>
+                <select id="yearDropdown" onchange="onYearChange()"></select>
+                <button type="button" onclick="jumpToToday()">Today</button>
+            </div>
+            <p style="text-align:center; color:#64748b; font-size:13px; margin-top:0;">Click any Date below to open its 24-Hour schedule.</p>
+            <div class="months-container" id="monthsContainer"></div>
+        </div>
+
+        <div id="viewHours" style="display:none;">
+            <h3 id="selectedDateHeader" style="color:#1e3a8a; margin-top:0;">Selected Date:</h3>
+            <p style="color:#64748b; font-size:13px;">Click any Hour below to view minutes.</p>
+            <div class="hours-grid" id="hoursGridContainer"></div>
+        </div>
+
+        <div id="viewMinutes" style="display:none;">
+            <h3 id="selectedHourHeader" style="color:#1e3a8a; margin-top:0;">Selected Time Slot:</h3>
+            <div class="minutes-list" id="minutesListContainer"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="medicineModal">
+    <div class="modal-content">
+        <h3 id="modalTitleText">Add Medicine</h3>
+        <div class="form-group">
+            <label>Medicine Name:</label>
+            <input type="text" id="inputMedName" placeholder="e.g., Paracetamol 650mg">
+        </div>
+        <div class="form-group">
+            <label>Instructions / Dosage:</label>
+            <textarea id="inputMedInst" rows="3" placeholder="e.g., Take 1 tablet after meal"></textarea>
+        </div>
+        <div class="modal-btns">
+            <button type="button" class="btn-close" onclick="closeModalWindow()">Cancel</button>
+            <button type="button" class="btn-save" onclick="saveMedicineData()">Save Reminder</button>
+        </div>
+    </div>
+</div>
+
+<script>
+window.onload = function() {
+    var registeredUsersDb = {};
+    try {
+        var savedUsers = localStorage.getItem("sayan_med_custom_users");
+        if (savedUsers) {
+            registeredUsersDb = JSON.parse(savedUsers);
+        }
+    } catch (e) {
+        registeredUsersDb = {};
+    }
+
+    window.saveUsersToStorage = function() {
+        try {
+            localStorage.setItem("sayan_med_custom_users", JSON.stringify(registeredUsersDb));
+        } catch (e) {
+            console.error("Local storage error:", e);
+        }
+    };
+
+    window.currentUser = null;
+    window.reminderDatabase = {};
+    window.selectedYear = new Date().getFullYear();
+    window.selectedDateKey = null;
+    window.selectedHourStr = null;
+    window.activeMinuteKey = null;
+    window.alarmAudioCtx = null;
+    window.alarmIntervalTimer = null;
+    window.dismissedMinuteKey = null;
+
+    function padZero(num) {
+        return (num < 10 ? "0" : "") + num;
+    }
+
+    function updateClockNow() {
+        var now = new Date();
+        var hh = padZero(now.getHours());
+        var mm = padZero(now.getMinutes());
+        var ss = padZero(now.getSeconds());
+        var clockEl = document.getElementById("liveClockDisplay");
+        if (clockEl) {
+            clockEl.innerHTML = hh + ":" + mm + ":" + ss;
+        }
+
+        if (!window.currentUser) return;
+
+        var yyyy = now.getFullYear();
+        var mon = padZero(now.getMonth() + 1);
+        var dd = padZero(now.getDate());
+        var currentDateKey = yyyy + "-" + mon + "-" + dd;
+        var currentTimeKey = hh + ":" + mm;
+        var fullCurrentMinuteKey = currentDateKey + " " + currentTimeKey;
+
+        if (window.dismissedMinuteKey && window.dismissedMinuteKey !== fullCurrentMinuteKey) {
+            window.dismissedMinuteKey = null;
+        }
+
+        if (window.reminderDatabase[currentDateKey]) {
+            var dayMeds = window.reminderDatabase[currentDateKey];
+            if (dayMeds[currentTimeKey] && fullCurrentMinuteKey !== window.dismissedMinuteKey) {
+                if (!window.alarmIntervalTimer) {
+                    window.triggerAlarmBanner(currentDateKey, currentTimeKey, dayMeds[currentTimeKey]);
+                }
+            }
+        }
+    }
+
+    setInterval(updateClockNow, 1000);
+    updateClockNow(); // Run once immediately
+
+    window.showLoginScreen = function() {
+        document.getElementById("authLogin").style.display = "block";
+        document.getElementById("authRegister").style.display = "none";
+        document.getElementById("mainDashboard").style.display = "none";
+    };
+
+    window.showRegisterScreen = function() {
+        document.getElementById("authLogin").style.display = "none";
+        document.getElementById("authRegister").style.display = "block";
+        document.getElementById("mainDashboard").style.display = "none";
+    };
+
+    window.handleRegister = function() {
+        var nameField = document.getElementById("regName");
+        var phoneField = document.getElementById("regPhone");
+        
+        var name = nameField.value.trim();
+        var phone = phoneField.value.trim();
+        
+        if (name === "" || phone === "") {
+            alert("Please enter both Name and Phone Number!");
+            return;
+        }
+
+        var uniqueId = "ID-" + Math.floor(1000 + Math.random() * 9000);
+        registeredUsersDb[uniqueId] = {
+            name: name,
+            phone: phone,
+            reminders: {}
+        };
+        window.saveUsersToStorage();
+
+        alert("Account Created Successfully!\n\nYour User ID is: " + uniqueId + "\n(Please save this ID to login later)");
+        
+        document.getElementById("loginUserId").value = uniqueId;
+        nameField.value = "";
+        phoneField.value = "";
+        window.showLoginScreen();
+    };
+
+    window.handleLogin = function() {
+        var loginInput = document.getElementById("loginUserId");
+        var userId = loginInput.value.trim();
+        
+        if (userId === "" || !registeredUsersDb[userId]) {
+            alert("Invalid User ID! Please check or register first.");
+            return;
+        }
+
+        window.currentUser = registeredUsersDb[userId];
+        window.currentUser.id = userId;
+        window.reminderDatabase = window.currentUser.reminders || {};
+
+        document.getElementById("navUserName").innerHTML = window.currentUser.name;
+        document.getElementById("navUserDetails").innerHTML = "ID: " + window.currentUser.id + " | Phone: " + window.currentUser.phone;
+        document.getElementById("navUserAvatar").innerHTML = window.currentUser.name.substring(0, 2).toUpperCase();
+
+        document.getElementById("authLogin").style.display = "none";
+        document.getElementById("mainDashboard").style.display = "block";
+
+        window.initYearDropdown();
+        window.goToYearView();
+    };
+
+    window.handleLogout = function() {
+        window.stopAlarmSound();
+        window.currentUser = null;
+        document.getElementById("loginUserId").value = "";
+        document.getElementById("mainDashboard").style.display = "none";
+        window.showLoginScreen();
+    };
+
+    window.initYearDropdown = function() {
+        var dropdown = document.getElementById("yearDropdown");
+        dropdown.innerHTML = "";
+        for (var y = 2020; y <= 2035; y++) {
+            var opt = document.createElement("option");
+            opt.value = y;
+            opt.innerHTML = y;
+            if (y === window.selectedYear) opt.selected = true;
+            dropdown.appendChild(opt);
+        }
+        document.getElementById("lblCurrentYear").innerHTML = window.selectedYear;
+    };
+
+    window.onYearChange = function() {
+        window.selectedYear = parseInt(document.getElementById("yearDropdown").value, 10);
+        document.getElementById("lblCurrentYear").innerHTML = window.selectedYear;
+        window.renderFullYearCalendar();
+    };
+
+    window.jumpToToday = function() {
+        window.selectedYear = new Date().getFullYear();
+        document.getElementById("yearDropdown").value = window.selectedYear;
+        document.getElementById("lblCurrentYear").innerHTML = window.selectedYear;
+        window.renderFullYearCalendar();
+        window.goToYearView();
+    };
+
+    window.goToYearView = function() {
+        document.getElementById("viewYear").style.display = "block";
+        document.getElementById("viewHours").style.display = "none";
+        document.getElementById("viewMinutes").style.display = "none";
+        document.getElementById("breadcrumbNav").innerHTML = "<span onclick='goToYearView()'>Calendar (" + window.selectedYear + ")</span>";
+        window.renderFullYearCalendar();
+    };
+
+    window.goToHoursView = function(dateKey) {
+        window.selectedDateKey = dateKey;
+        document.getElementById("viewYear").style.display = "none";
+        document.getElementById("viewHours").style.display = "block";
+        document.getElementById("viewMinutes").style.display = "none";
+        document.getElementById("breadcrumbNav").innerHTML = "<span onclick='goToYearView()'>Calendar (" + window.selectedYear + ")</span> &gt; <span>Date: " + window.selectedDateKey + "</span>";
+        document.getElementById("selectedDateHeader").innerHTML = "Date Selected: " + window.selectedDateKey;
+        window.renderHoursGrid();
+    };
+
+    window.goToMinutesView = function(hourStr) {
+        window.selectedHourStr = hourStr;
+        document.getElementById("viewYear").style.display = "none";
+        document.getElementById("viewHours").style.display = "none";
+        document.getElementById("viewMinutes").style.display = "block";
+        document.getElementById("breadcrumbNav").innerHTML = "<span onclick='goToYearView()'>Calendar (" + window.selectedYear + ")</span> &gt; <span onclick='goToHoursView(\"" + window.selectedDateKey + "\")'>" + window.selectedDateKey + "</span> &gt; <span>Hour: " + window.selectedHourStr + ":00</span>";
+        document.getElementById("selectedHourHeader").innerHTML = "Minute List for " + window.selectedDateKey + " (" + window.selectedHourStr + ":00 to " + window.selectedHourStr + ":59)";
+        window.renderMinutesList();
+    };
+
+    window.renderFullYearCalendar = function() {
+        var container = document.getElementById("monthsContainer");
+        container.innerHTML = "";
+        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        var dayNamesShort = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+        for (var m = 0; m < 12; m++) {
+            var monthBox = document.createElement("div");
+            monthBox.className = "month-box";
+            monthBox.innerHTML = "<div class='month-title'>" + monthNames[m] + "</div>";
+
+            var grid = document.createElement("div");
+            grid.className = "cal-grid";
+
+            for (var dIdx = 0; dIdx < 7; dIdx++) {
+                grid.innerHTML += "<div class='day-name'>" + dayNamesShort[dIdx] + "</div>";
+            }
+
+            var firstDayIndex = new Date(window.selectedYear, m, 1).getDay();
+            var totalDaysInMonth = new Date(window.selectedYear, m + 1, 0).getDate();
+
+            for (var i = 0; i < firstDayIndex; i++) {
+                grid.innerHTML += "<div></div>";
+            }
+
+            for (var day = 1; day <= totalDaysInMonth; day++) {
+                (function(cM, cDay) {
+                    var cell = document.createElement("div");
+                    cell.className = "date-cell";
+                    cell.innerHTML = cDay;
+                    var dateKeyStr = window.selectedYear + "-" + padZero(cM + 1) + "-" + padZero(cDay);
+
+                    if (window.reminderDatabase[dateKeyStr]) {
+                        cell.className = "date-cell has-med";
+                    }
+                    cell.onclick = function() { window.goToHoursView(dateKeyStr); };
+                    grid.appendChild(cell);
+                })(m, day);
+            }
+            monthBox.appendChild(grid);
+            container.appendChild(monthBox);
+        }
+    };
+
+    window.renderHoursGrid = function() {
+        var gridContainer = document.getElementById("hoursGridContainer");
+        gridContainer.innerHTML = "";
+        var dayRecords = window.reminderDatabase[window.selectedDateKey] || {};
+
+        for (var h = 0; h < 24; h++) {
+            (function(cH) {
+                var hourStr = padZero(cH);
+                var card = document.createElement("div");
+                card.className = "hour-card";
+
+                var keys = Object.keys(dayRecords);
+                var countMeds = 0;
+                for (var i = 0; i < keys.length; i++) {
+                    if (keys[i].indexOf(hourStr + ":") === 0) countMeds++;
+                }
+
+                if (countMeds > 0) {
+                    card.className = "hour-card booked";
+                    card.innerHTML = "<div class='hour-title'>" + hourStr + ":00</div><div class='hour-sub'>" + countMeds + " Med(s)</div>";
+                } else {
+                    card.innerHTML = "<div class='hour-title'>" + hourStr + ":00</div><div style='font-size:12px; color:#64748b;'>Open</div>";
+                }
+
+                card.onclick = function() { window.goToMinutesView(hourStr); };
+                gridContainer.appendChild(card);
+            })(h);
+        }
+    };
+
+    window.renderMinutesList = function() {
+        var listContainer = document.getElementById("minutesListContainer");
+        listContainer.innerHTML = "";
+        var dayRecords = window.reminderDatabase[window.selectedDateKey] || {};
+
+        for (var min = 0; min < 60; min++) {
+            (function(cMin) {
+                var minStr = padZero(cMin);
+                var timeKey = window.selectedHourStr + ":" + minStr;
+                var row = document.createElement("div");
+                row.className = "minute-row";
+
+                var medInfo = dayRecords[timeKey];
+                var infoDiv = document.createElement("div");
+                if (medInfo) {
+                    infoDiv.innerHTML = "<div class='minute-info'>Time: " + timeKey + "</div><div class='minute-med-details'><b>" + medInfo.name + "</b> - " + medInfo.inst + "</div>";
+                } else {
+                    infoDiv.innerHTML = "<div class='minute-info'>Time: " + timeKey + "</div>";
+                }
+
+                var btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "btn-add-med";
+                btn.innerHTML = medInfo ? "Edit Medicine" : "+ Add Medicine";
+                btn.onclick = function() { window.openMedicineModal(timeKey, medInfo); };
+
+                row.appendChild(infoDiv);
+                row.appendChild(btn);
+                listContainer.appendChild(row);
+            })(min);
+        }
+    };
+
+    window.openMedicineModal = function(timeKey, existingData) {
+        window.activeMinuteKey = timeKey;
+        document.getElementById("modalTitleText").innerHTML = "Set Medicine (" + window.selectedDateKey + " at " + timeKey + ")";
+        document.getElementById("inputMedName").value = existingData ? existingData.name : "";
+        document.getElementById("inputMedInst").value = existingData ? existingData.inst : "";
+        document.getElementById("medicineModal").style.display = "flex";
+    };
+
+    window.closeModalWindow = function() {
+        document.getElementById("medicineModal").style.display = "none";
+    };
+
+    window.saveMedicineData = function() {
+        var nameField = document.getElementById("inputMedName");
+        var instField = document.getElementById("inputMedInst");
+        
+        var name = nameField.value.trim();
+        var inst = instField.value.trim();
+        if (name === "") {
+            alert("Please enter a medicine name!");
+            return;
+        }
+        if (!window.reminderDatabase[window.selectedDateKey]) {
+            window.reminderDatabase[window.selectedDateKey] = {};
+        }
+        window.reminderDatabase[window.selectedDateKey][window.activeMinuteKey] = { name: name, inst: inst };
+
+        if (window.currentUser) {
+            window.currentUser.reminders = window.reminderDatabase;
+            registeredUsersDb[window.currentUser.id] = window.currentUser;
+            window.saveUsersToStorage();
+        }
+
+        window.closeModalWindow();
+        window.renderMinutesList();
+    };
+
+    window.playBeepSound = function() {
+        try {
+            if (!window.alarmAudioCtx) window.alarmAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var osc = window.alarmAudioCtx.createOscillator();
+            var gain = window.alarmAudioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(900, window.alarmAudioCtx.currentTime);
+            gain.gain.setValueAtTime(0.3, window.alarmAudioCtx.currentTime);
+            osc.connect(gain);
+            gain.connect(window.alarmAudioCtx.destination);
+            osc.start();
+            osc.stop(window.alarmAudioCtx.currentTime + 0.4);
+        } catch (e) {}
+    };
+
+    window.triggerAlarmBanner = function(dateStr, timeStr, medObj) {
+        document.getElementById("alarmBanner").style.display = "block";
+        document.getElementById("alarmDetailsText").innerHTML = "Medicine: " + medObj.name + " at " + timeStr;
+        document.getElementById("alarmInstText").innerHTML = "Instructions: " + medObj.inst;
+        
+        if (window.alarmIntervalTimer) clearInterval(window.alarmIntervalTimer);
+        window.playBeepSound();
+        window.alarmIntervalTimer = setInterval(window.playBeepSound, 1000);
+    };
+
+    window.stopAlarmSound = function() {
+        document.getElementById("alarmBanner").style.display = "none";
+        if (window.alarmIntervalTimer) {
+            clearInterval(window.alarmIntervalTimer);
+            window.alarmIntervalTimer = null;
+        }
+        var now = new Date();
+        window.dismissedMinuteKey = now.getFullYear() + "-" + padZero(now.getMonth() + 1) + "-" + padZero(now.getDate()) + " " + padZero(now.getHours()) + ":" + padZero(now.getMinutes());
+    };
+};
+</script>
+</body>
+</html>
